@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpineLine Client</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 2rem;
+            background-color: #f8f9fa;
+        }
+        .card {
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .api-response {
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            border-radius: 0.25rem;
+            padding: 1rem;
+            font-family: monospace;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border-color: #3498db;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">SpineLine Client</a>
+            <div class="d-flex">
+                <span class="navbar-text me-3" id="serverStatus">Server Status: Checking...</span>
+                <button class="btn btn-sm btn-outline-success" id="checkServerBtn">Check Server</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12 mb-4">
+                <div class="alert alert-info">
+                    <h4 class="alert-heading">Welcome to SpineLine Client!</h4>
+                    <p>This is a simple client to interact with the SpineLine API. Use the endpoints below to test the API.</p>
+                    <p>Note: Some endpoints may require authentication which is not implemented in this simple client.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Health Check</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Check if the server is running properly.</p>
+                        <button class="btn btn-primary" id="healthCheckBtn">Health Check</button>
+                        <div class="mt-3 api-response" id="healthCheckResponse"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Get Patients</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Retrieve a list of patients (requires authentication).</p>
+                        <button class="btn btn-primary" id="getPatientsBtn">Get Patients</button>
+                        <div class="mt-3 api-response" id="getPatientsResponse"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Get Appointments</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Retrieve a list of appointments (requires authentication).</p>
+                        <button class="btn btn-primary" id="getAppointmentsBtn">Get Appointments</button>
+                        <div class="mt-3 api-response" id="getAppointmentsResponse"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Create Patient</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Create a new patient (requires authentication).</p>
+                        <form id="createPatientForm">
+                            <div class="mb-3">
+                                <label for="firstName" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="firstName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="lastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="lastName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone</label>
+                                <input type="tel" class="form-control" id="phone" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Create Patient</button>
+                        </form>
+                        <div class="mt-3 api-response" id="createPatientResponse"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:4501';
+
+        // Check server status on page load
+        document.addEventListener('DOMContentLoaded', checkServerStatus);
+        
+        // Add event listeners to buttons
+        document.getElementById('checkServerBtn').addEventListener('click', checkServerStatus);
+        document.getElementById('healthCheckBtn').addEventListener('click', healthCheck);
+        document.getElementById('getPatientsBtn').addEventListener('click', getPatients);
+        document.getElementById('getAppointmentsBtn').addEventListener('click', getAppointments);
+        document.getElementById('createPatientForm').addEventListener('submit', createPatient);
+
+        // Function to check server status
+        function checkServerStatus() {
+            const statusElement = document.getElementById('serverStatus');
+            statusElement.textContent = 'Server Status: Checking...';
+            
+            fetch(`${API_BASE_URL}/health`, { 
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    statusElement.textContent = 'Server Status: Online';
+                    statusElement.className = 'navbar-text me-3 text-success';
+                    return response.json();
+                } else {
+                    throw new Error('Server is offline');
+                }
+            })
+            .catch(error => {
+                statusElement.textContent = 'Server Status: Offline';
+                statusElement.className = 'navbar-text me-3 text-danger';
+                console.error('Error checking server status:', error);
+            });
+        }
+
+        // Function to perform health check
+        function healthCheck() {
+            const responseElement = document.getElementById('healthCheckResponse');
+            responseElement.innerHTML = 'Loading...';
+            
+            fetch(`${API_BASE_URL}/health`, { 
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            })
+            .catch(error => {
+                responseElement.innerHTML = `<div class="text-danger">Error: ${error.message}</div>`;
+                console.error('Error performing health check:', error);
+            });
+        }
+
+        // Function to get patients
+        function getPatients() {
+            const responseElement = document.getElementById('getPatientsResponse');
+            responseElement.innerHTML = 'Loading...';
+            
+            fetch(`${API_BASE_URL}/api/patients`, { 
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // In a real application, you would include authentication token
+                    // 'Authorization': 'Bearer YOUR_TOKEN_HERE'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            })
+            .catch(error => {
+                responseElement.innerHTML = `<div class="text-danger">Error: ${error.message}</div>`;
+                console.error('Error getting patients:', error);
+            });
+        }
+
+        // Function to get appointments
+        function getAppointments() {
+            const responseElement = document.getElementById('getAppointmentsResponse');
+            responseElement.innerHTML = 'Loading...';
+            
+            fetch(`${API_BASE_URL}/api/appointments`, { 
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // In a real application, you would include authentication token
+                    // 'Authorization': 'Bearer YOUR_TOKEN_HERE'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            })
+            .catch(error => {
+                responseElement.innerHTML = `<div class="text-danger">Error: ${error.message}</div>`;
+                console.error('Error getting appointments:', error);
+            });
+        }
+
+        // Function to create a patient
+        function createPatient(event) {
+            event.preventDefault();
+            
+            const responseElement = document.getElementById('createPatientResponse');
+            responseElement.innerHTML = 'Loading...';
+            
+            const patientData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value
+            };
+            
+            fetch(`${API_BASE_URL}/api/patients`, { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // In a real application, you would include authentication token
+                    // 'Authorization': 'Bearer YOUR_TOKEN_HERE'
+                },
+                body: JSON.stringify(patientData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            })
+            .catch(error => {
+                responseElement.innerHTML = `<div class="text-danger">Error: ${error.message}</div>`;
+                console.error('Error creating patient:', error);
+            });
+        }
+    </script>
+</body>
+</html>

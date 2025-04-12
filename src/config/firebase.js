@@ -10,7 +10,8 @@ const firebaseConfig = {
   clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
 };
 
-// Initialize the Firebase Admin SDK
+// Temporarily disabled Firebase initialization for development
+/* 
 try {
   admin.initializeApp({
     credential: admin.credential.cert(firebaseConfig),
@@ -19,5 +20,7 @@ try {
 } catch (error) {
   console.error('Error initializing Firebase Admin SDK:', error);
 }
+*/
+console.log('Firebase Admin SDK initialization skipped for development');
 
 export default admin;

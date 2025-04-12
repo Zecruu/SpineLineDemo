@@ -22,7 +22,7 @@ dotenv.config();
 
 // Initialize Express app
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
@@ -31,10 +31,21 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+// Connect to MongoDB with provided connection string
+const MONGODB_URI = 'mongodb+srv://nomnk5138:nomnk5138@spineline.6ywg3.mongodb.net/?retryWrites=true&w=majority&appName=SpineLine';
+
+// Try to connect to MongoDB but continue if it fails
+try {
+  mongoose.connect(MONGODB_URI)
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => {
+      console.error('MongoDB connection error:', err);
+      console.log('Continuing without MongoDB connection for development');
+    });
+} catch (error) {
+  console.error('Error setting up MongoDB connection:', error);
+  console.log('Continuing without MongoDB connection for development');
+}
 
 // Routes
 app.use('/api/users', userRoutes);
@@ -60,6 +71,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const SERVER_PORT = 4501; // Explicitly set port to 4501
+app.listen(SERVER_PORT, () => {
+  console.log(`Server running on port ${SERVER_PORT}`);
 });
