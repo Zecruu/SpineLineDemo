@@ -1,4 +1,5 @@
 import Patient from '../models/Patient.js';
+import { validationResult } from 'express-validator';
 import { createAuditLog } from '../utils/auditLogger.js';
 
 /**
@@ -81,6 +82,14 @@ export const getPatientById = async (req, res) => {
  */
 export const createPatient = async (req, res) => {
   try {
+    // Validate request
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: true,
+        message: errors.array()
+      });
+    }
     // Add the user who created the patient
     req.body.createdBy = req.user.mongoId;
     
@@ -113,6 +122,14 @@ export const createPatient = async (req, res) => {
  */
 export const updatePatient = async (req, res) => {
   try {
+    // Validate request
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: true,
+        message: errors.array()
+      });
+    }
     // Add the user who updated the patient
     req.body.updatedBy = req.user.mongoId;
     
@@ -163,6 +180,14 @@ export const updatePatient = async (req, res) => {
  */
 export const addInsurance = async (req, res) => {
   try {
+    // Validate request
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: true,
+        message: errors.array()
+      });
+    }
     const patient = await Patient.findById(req.params.id);
     
     if (!patient) {
@@ -213,6 +238,14 @@ export const addInsurance = async (req, res) => {
  */
 export const addReferral = async (req, res) => {
   try {
+    // Validate request
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: true,
+        message: errors.array()
+      });
+    }
     const patient = await Patient.findById(req.params.id);
     
     if (!patient) {
@@ -262,6 +295,14 @@ export const addReferral = async (req, res) => {
  */
 export const addAlert = async (req, res) => {
   try {
+    // Validate request
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: true,
+        message: errors.array()
+      });
+    }
     const patient = await Patient.findById(req.params.id);
     
     if (!patient) {

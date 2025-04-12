@@ -1,4 +1,5 @@
 import Appointment from '../models/Appointment.js';
+import { validationResult } from 'express-validator';
 import { createAuditLog } from '../utils/auditLogger.js';
 
 /**
@@ -104,6 +105,14 @@ export const getAppointmentById = async (req, res) => {
  */
 export const createAppointment = async (req, res) => {
   try {
+    // Validate request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: true,
+        errors: errors.array()
+      });
+    }
     // Add the user who created the appointment
     req.body.createdBy = req.user.mongoId;
     
@@ -177,6 +186,14 @@ export const createAppointment = async (req, res) => {
  */
 export const updateAppointment = async (req, res) => {
   try {
+    // Validate request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: true,
+        errors: errors.array()
+      });
+    }
     // Add the user who updated the appointment
     req.body.updatedBy = req.user.mongoId;
     
@@ -266,6 +283,14 @@ export const updateAppointment = async (req, res) => {
  */
 export const cancelAppointment = async (req, res) => {
   try {
+    // Validate request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: true,
+        errors: errors.array()
+      });
+    }
     const appointment = await Appointment.findById(req.params.id);
     
     if (!appointment) {
@@ -316,6 +341,14 @@ export const cancelAppointment = async (req, res) => {
  */
 export const checkInAppointment = async (req, res) => {
   try {
+    // Validate request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: true,
+        errors: errors.array()
+      });
+    }
     const appointment = await Appointment.findById(req.params.id);
     
     if (!appointment) {
@@ -363,6 +396,14 @@ export const checkInAppointment = async (req, res) => {
  */
 export const completeAppointment = async (req, res) => {
   try {
+    // Validate request body
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: true,
+        errors: errors.array()
+      });
+    }
     const appointment = await Appointment.findById(req.params.id);
     
     if (!appointment) {

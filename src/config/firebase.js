@@ -1,26 +1,34 @@
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
+import { getFirestore } from "firebase-admin/firestore";
+import { getAuth } from "firebase-admin/auth";
 
 dotenv.config();
 
-// Initialize Firebase Admin SDK
-const firebaseConfig = {
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-};
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)
+
+
+
 
 // Temporarily disabled Firebase initialization for development
 /* 
 try {
-  admin.initializeApp({
-    credential: admin.credential.cert(firebaseConfig),
-  });
-  console.log('Firebase Admin SDK initialized successfully');
+    if (!admin.apps.length) {
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+        });
+        console.log('Firebase Admin SDK initialized successfully');
+    }
+
 } catch (error) {
   console.error('Error initializing Firebase Admin SDK:', error);
 }
 */
+
 console.log('Firebase Admin SDK initialization skipped for development');
+
+// Export these for when Firebase is properly initialized
+// export const firestore = getFirestore(admin.app());
+// export const auth = getAuth(admin.app());
 
 export default admin;
